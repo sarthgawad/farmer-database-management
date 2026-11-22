@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>कृषी दृष्टी · Krishi Drishti</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Devanagari:wght@500;700&family=Noto+Serif:wght@500;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --soil-dark:#1B2A21;
+  --soil-dark-2:#233B2B;
+  --paper:#F5F1E6;
+  --paper-2:#EDE7D6;
+  --leaf:#4C7A3F;
+  --leaf-deep:#345B2B;
+  --gold:#C98A2C;
+  --alert:#A8402F;
+  --sky:#2E6E8E;
+  --ink:#1B2A21;
+  --ink-soft:#5B6B5E;
+  --white:#FFFDF8;
+  --radius:18px;
+  --shadow:0 10px 30px -12px rgba(27,42,33,0.35);
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;height:100%;}
+body{
+  font-family:'Noto Sans Devanagari','Noto Sans',sans-serif;
+  background:var(--paper);
+  color:var(--ink);
+  display:flex;
+  justify-content:center;
+  min-height:100vh;
+}
+.dev h1,.dev h2,.dev h3,.dev .display{font-family:'Noto Serif Devanagari','Noto Serif',serif;}
+#app{
+  width:100%;
+  max-width:460px;
+  min-height:100vh;
+  background:var(--paper);
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  box-shadow:0 0 60px rgba(0,0,0,0.15);
+}
+.screen{display:none; flex-direction:column; flex:1; animation:fadeIn .35s ease;}
+.screen.active{display:flex;}
+@keyframes fadeIn{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+
+/* ---------- Top bar ---------- */
+.topbar{
+  background:var(--soil-dark);
+  color:var(--paper);
+  padding:16px 18px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  position:sticky; top:0; z-index:20;
+}
+.topbar .brand{display:flex; align-items:center; gap:10px;}
+.brand-mark{width:34px; height:34px; border-radius:9px; background:linear-gradient(145deg,var(--leaf),var(--leaf-deep)); display:flex; align-items:center; justify-content:center; font-size:18px;}
+.brand-name{font-family:'Noto Serif Devanagari','Noto Serif',serif; font-weight:700; font-size:17px; line-height:1.1;}
+.brand-sub{font-size:10.5px; opacity:0.65; letter-spacing:0.04em;}
+.lang-pill{
+  background:rgba(255,255,255,0.1);
+  border:1px solid rgba(255,255,255,0.2);
+  color:var(--paper);
+  border-radius:999px;
+  padding:6px 12px;
+  font-size:12.5px;
+  font-weight:600;
+  display:flex; align-items:center; gap:5px;
+  cursor:pointer;
+}
+.status-dot{width:8px; height:8px; border-radius:50%; display:inline-block;}
+.status-dot.online{background:#7FD858;}
+.status-dot.offline{background:#E0A93B;}
+
+/* ---------- Language select screen ---------- */
+.lang-screen{
+  flex:1; display:flex; flex-direction:column;
+  background:radial-gradient(120% 90% at 50% 0%, #2C4433 0%, var(--soil-dark) 60%);
+  color:var(--paper);
+  padding:48px 26px 34px;
+  align-items:center;
+  text-align:center;
+}
+.lang-hero-icon{width:88px; height:88px; border-radius:22px; background:linear-gradient(155deg,var(--leaf) 0%, var(--sky) 100%); display:flex; align-items:center; justify-content:center; font-size:42px; margin-bottom:22px; box-shadow:var(--shadow);}
+.lang-screen h1{font-size:26px; margin:0 0 6px; font-weight:700;}
+.lang-screen p.tag{opacity:0.7; font-size:14px; margin:0 0 40px; max-width:280px; line-height:1.5;}
+.lang-options{width:100%; display:flex; flex-direction:column; gap:14px;}
+.lang-btn{
+  width:100%;
+  background:var(--paper);
+  color:var(--soil-dark);
+  border:none;
+  border-radius:16px;
+  padding:18px 20px;
+  font-size:19px;
+  font-weight:700;
+  display:flex; align-items:center; justify-content:space-between;
+  cursor:pointer;
+  transition:transform .15s ease;
+}
+.lang-btn small{display:block; font-weight:500; font-size:12px; opacity:0.55; margin-top:2px;}
+.lang-btn:active{transform:scale(0.97);}
+.lang-btn .arrow{font-size:20px; opacity:0.4;}
+.lang-note{margin-top:26px; font-size:11.5px; opacity:0.5; max-width:280px; line-height:1.5;}
+
+/* ---------- Generic content padding ---------- */
+.content{padding:18px; flex:1; padding-bottom:100px;}
+
+/* ---------- Offline banner ---------- */
+.offline-banner{
+  background:#F4E3C6; color:#7A4E12; border:1px solid #E3C48C;
+  padding:10px 14px; border-radius:12px; font-size:12.5px; font-weight:600;
+  display:flex; align-items:center; gap:8px; margin-bottom:16px;
+}
+
+/* ---------- Cards ---------- */
+.card{
+  background:var(--white);
+  border-radius:var(--radius);
+  padding:18px;
+  box-shadow:var(--shadow);
+  margin-bottom:16px;
+}
+.section-label{
+  font-size:11px; text-transform:uppercase; letter-spacing:0.08em;
+  color:var(--ink-soft); font-weight:700; margin:0 0 10px 2px;
+}
+
+/* Field summary card */
+.field-head{display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px;}
+.field-title{font-size:18px; font-weight:700; margin:0;}
+.field-meta{font-size:12.5px; color:var(--ink-soft); margin-top:2px;}
+.crop-badge{
+  background:var(--paper-2); border-radius:10px; padding:6px 10px; font-size:12px; font-weight:700; color:var(--leaf-deep);
+  display:flex; align-items:center; gap:5px;
+}
+
+/* Gauge */
+.gauge-row{display:flex; align-items:center; gap:16px; margin:6px 0 4px;}
+.gauge{width:84px; height:84px; border-radius:50%; display:flex; align-items:center; justify-content:center; position:relative; flex-shrink:0;}
+.gauge-inner{width:64px; height:64px; border-radius:50%; background:var(--white); display:flex; flex-direction:column; align-items:center; justify-content:center;}
+.gauge-inner .num{font-size:19px; font-weight:800; line-height:1;}
+.gauge-inner .lbl{font-size:9px; color:var(--ink-soft); margin-top:2px;}
+.gauge-desc h3{margin:0 0 4px; font-size:15px;}
+.gauge-desc p{margin:0; font-size:12.5px; color:var(--ink-soft); line-height:1.45;}
+
+/* Satellite field grid (signature element) */
+.field-grid-wrap{margin-top:6px;}
+.field-grid{
+  display:grid; grid-template-columns:repeat(6,1fr); gap:4px;
+  background:var(--soil-dark); padding:8px; border-radius:14px;
+}
+.tile{aspect-ratio:1; border-radius:5px; position:relative; cursor:pointer;}
+.tile.healthy{background:#4C7A3F;}
+.tile.mild_stress{background:#C98A2C;}
+.tile.high_stress{background:#A8402F;}
+.legend{display:flex; gap:14px; margin-top:12px; flex-wrap:wrap;}
+.legend-item{display:flex; align-items:center; gap:6px; font-size:11.5px; color:var(--ink-soft); font-weight:600;}
+.legend-dot{width:10px; height:10px; border-radius:3px;}
+
+/* Recommendation banner */
+.reco{
+  border-radius:16px; padding:16px; margin-bottom:16px;
+  display:flex; gap:12px; align-items:flex-start;
+}
+.reco.priority-high{background:#FBE7E2; border:1px solid #EFC2B7;}
+.reco.priority-medium{background:#FBEED3; border:1px solid #EAD19E;}
+.reco.priority-low{background:#E5F0E0; border:1px solid #C3DCB9;}
+.reco-icon{font-size:24px; line-height:1;}
+.reco h4{margin:0 0 4px; font-size:14.5px;}
+.reco p{margin:0; font-size:12.5px; line-height:1.5; color:#3d3d3d;}
+
+/* Buttons */
+.btn{
+  width:100%; border:none; border-radius:14px; padding:16px; font-size:16px; font-weight:700;
+  display:flex; align-items:center; justify-content:center; gap:8px; cursor:pointer;
+}
+.btn-primary{background:var(--leaf); color:#fff;}
+.btn-primary:active{background:var(--leaf-deep);}
+.btn-outline{background:transparent; border:2px solid var(--soil-dark); color:var(--soil-dark);}
+.btn-call{background:var(--sky); color:#fff;}
+.btn-ghost{background:var(--paper-2); color:var(--ink);}
+
+/* Bottom nav */
+.bottomnav{
+  position:sticky; bottom:0; background:var(--white); border-top:1px solid #E7E1CF;
+  display:flex; padding:8px 6px calc(8px + env(safe-area-inset-bottom));
+  z-index:20;
+}
+.navitem{flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:6px 0; border-radius:10px; cursor:pointer; color:var(--ink-soft); font-size:10.5px; font-weight:700;}
+.navitem.active{color:var(--leaf-deep);}
+.navitem .icon{font-size:19px;}
+
+/* Camera screen */
+.camera-screen{background:var(--soil-dark); color:#fff; flex:1; display:flex; flex-direction:column;}
+.camera-view{flex:1; position:relative; background:#0f1a13; display:flex; align-items:center; justify-content:center; overflow:hidden;}
+.camera-view video, .camera-view canvas, .camera-view img{width:100%; height:100%; object-fit:cover;}
+.camera-frame{position:absolute; inset:14%; border:2.5px dashed rgba(255,255,255,0.55); border-radius:16px; pointer-events:none;}
+.camera-hint{position:absolute; bottom:14px; left:0; right:0; text-align:center; font-size:12.5px; background:rgba(0,0,0,0.45); margin:0 40px; padding:8px 12px; border-radius:10px;}
+.camera-controls{padding:20px 18px calc(20px + env(safe-area-inset-bottom)); display:flex; align-items:center; justify-content:space-between;}
+.shutter{width:70px; height:70px; border-radius:50%; background:#fff; border:5px solid rgba(255,255,255,0.35); cursor:pointer;}
+.cam-side-btn{background:rgba(255,255,255,0.12); border:none; color:#fff; width:46px; height:46px; border-radius:50%; font-size:18px; cursor:pointer;}
+
+/* Analyzing */
+.analyzing-wrap{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px; text-align:center;}
+.spinner{width:56px; height:56px; border-radius:50%; border:5px solid rgba(76,122,63,0.2); border-top-color:var(--leaf); animation:spin 0.9s linear infinite; margin-bottom:20px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* Info toggle */
+.info-toggle{font-size:11.5px; color:var(--sky); font-weight:700; text-align:center; margin-top:4px; cursor:pointer; text-decoration:underline;}
+.info-box{background:#EAF2F5; border:1px solid #CFE1E7; border-radius:12px; padding:12px 14px; font-size:11.5px; color:#2b4a56; line-height:1.5; margin-top:10px; display:none;}
+.info-box.show{display:block;}
+
+/* crop pick chips */
+.chip-row{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px;}
+.chip{background:var(--paper-2); border:2px solid transparent; border-radius:999px; padding:9px 14px; font-size:13px; font-weight:700; cursor:pointer;}
+.chip.selected{background:var(--leaf); color:#fff; border-color:var(--leaf);}
+
+/* Emergency / help screen */
+.help-hero{background:linear-gradient(160deg,#2E6E8E,#20506A); color:#fff; padding:26px 20px; text-align:center;}
+.help-hero .icon{font-size:40px; margin-bottom:8px;}
+
+h2.screen-title{font-size:20px; margin:4px 0 16px 2px;}
+.small-muted{font-size:12px; color:var(--ink-soft);}
+
+/* Simulated-backend note ribbon */
+.sim-ribbon{
+  position:fixed; top:8px; right:8px; z-index:999;
+  background:rgba(27,42,33,0.85); color:#EDE7D6; font-size:9.5px; font-weight:700;
+  padding:4px 8px; border-radius:6px; letter-spacing:0.04em; pointer-events:none;
+  display:none;
+}
+</style>
+</head>
+<body>
+<div id="app" class="dev">
+
+  <!-- ================= LANGUAGE SCREEN ================= -->
+  <div class="screen active" id="screen-lang">
+    <div class="lang-screen">
+      <div class="lang-hero-icon">🌾</div>
+      <h1>Krishi Drishti</h1>
+      <p class="tag">Satellite-based crop health &amp; irrigation guidance for your field. Choose your language to continue.</p>
+      <div class="lang-options">
+        <button class="lang-btn" onclick="setLanguage('mr')">मराठी <small>Marathi</small><span class="arrow">→</span></button>
+        <button class="lang-btn" onclick="setLanguage('hi')">हिंदी <small>Hindi</small><span class="arrow">→</span></button>
+        <button class="lang-btn" onclick="setLanguage('en')">English <small>English</small><span class="arrow">→</span></button>
+      </div>
+      <p class="lang-note">You can change this anytime from the top of the screen.</p>
+    </div>
+  </div>
+
+  <!-- ================= HOME SCREEN ================= -->
+  <div class="screen" id="screen-home">
+    <div class="topbar">
+      <div class="brand">
+        <div class="brand-mark">🌾</div>
+        <div>
+          <div class="brand-name" id="t-brand">कृषी दृष्टी</div>
+          <div class="brand-sub" id="t-brandsub">FIELD INTELLIGENCE</div>
+        </div>
+      </div>
+      <div class="lang-pill" onclick="goTo('screen-lang')"><span id="t-langpill">मराठी</span> ▾</div>
+    </div>
+    <div class="content">
+      <div class="offline-banner" id="offlineBanner" style="display:none;">
+        <span>📡</span><span id="t-offlinemsg">No internet — showing last saved data from 2 days ago.</span>
+      </div>
+
+      <div class="card">
+        <div class="field-head">
+          <div>
+            <p class="field-title" id="t-fieldname">Field No. 1 — Shivar Plot</p>
+            <p class="field-meta" id="fieldMetaLine">2.4 acres · Last updated 4 hrs ago</p>
+          </div>
+          <div class="crop-badge">🌱 <span id="cropBadgeText">Cotton</span></div>
+        </div>
+
+        <div class="gauge-row">
+          <div class="gauge" id="homeGaugeRing" style="background:conic-gradient(var(--leaf) 0deg 252deg, var(--paper-2) 252deg 360deg);">
+            <div class="gauge-inner"><div class="num" id="homeHealthNum">70%</div><div class="lbl" id="homeHealthLbl">HEALTHY</div></div>
+          </div>
+          <div class="gauge-desc">
+            <h3 id="homeHealthTitle">Overall Field Health: Good</h3>
+            <p id="homeHealthDesc">Most of your field is healthy.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="reco priority-high" id="homeRecoBox">
+        <div class="reco-icon">💧</div>
+        <div>
+          <h4 id="homeRecoTitle">Irrigation Needed</h4>
+          <p id="homeRecoBody">Calculating…</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <p class="section-label" id="t-gridlabel">SATELLITE FIELD MAP — MOISTURE STRESS</p>
+        <div class="field-grid-wrap">
+          <div class="field-grid" id="fieldGrid"></div>
+          <div class="legend">
+            <div class="legend-item"><span class="legend-dot" style="background:var(--leaf)"></span><span id="t-leg-healthy">Healthy</span></div>
+            <div class="legend-item"><span class="legend-dot" style="background:var(--gold)"></span><span id="t-leg-mild">Mild stress</span></div>
+            <div class="legend-item"><span class="legend-dot" style="background:var(--alert)"></span><span id="t-leg-high">High stress</span></div>
+          </div>
+          <p class="small-muted" style="margin-top:10px;" id="ndviLine">Avg NDVI 0.00 · Stressed area 0%</p>
+        </div>
+      </div>
+
+      <button class="btn btn-outline" style="margin-bottom:10px;" onclick="refreshFieldData()">🔄 <span id="t-refreshbtn">Recalculate Recommendation</span></button>
+      <button class="btn btn-primary" onclick="goTo('screen-camera'); startCamera();">📷 <span id="t-scanbtn">Scan a Crop</span></button>
+    </div>
+
+    <div class="bottomnav">
+      <div class="navitem active"><span class="icon">🏠</span><span id="t-nav-home">Home</span></div>
+      <div class="navitem" onclick="goTo('screen-camera'); startCamera();"><span class="icon">📷</span><span id="t-nav-scan">Scan</span></div>
+      <div class="navitem" onclick="goTo('screen-help')"><span class="icon">🆘</span><span id="t-nav-help">Help</span></div>
+    </div>
+  </div>
+
+  <!-- ================= CAMERA SCREEN ================= -->
+  <div class="screen" id="screen-camera">
+    <div class="camera-screen">
+      <div class="topbar" style="background:transparent;">
+        <div class="lang-pill" onclick="stopCameraAndGo('screen-home')">← <span id="t-back">Back</span></div>
+        <div class="lang-pill"><span id="t-camtitle">Scan Crop</span></div>
+      </div>
+      <div class="camera-view" id="cameraView">
+        <video id="video" autoplay playsinline muted></video>
+        <div class="camera-frame"></div>
+        <div class="camera-hint" id="t-camhint">Point camera at crop leaves, fill the frame, then tap capture.</div>
+      </div>
+      <div class="camera-controls">
+        <button class="cam-side-btn" onclick="stopCameraAndGo('screen-home')">✕</button>
+        <div class="shutter" onclick="capturePhoto()"></div>
+        <button class="cam-side-btn" id="camPermBtn" onclick="startCamera()">↻</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= ANALYZING SCREEN ================= -->
+  <div class="screen" id="screen-analyzing">
+    <div class="analyzing-wrap">
+      <div class="spinner"></div>
+      <h3 id="t-analyzing">Analyzing your photo…</h3>
+      <p class="small-muted" id="t-analyzing-sub">Checking leaf colour, greenness and possible stress signs.</p>
+    </div>
+  </div>
+
+  <!-- ================= RESULT SCREEN ================= -->
+  <div class="screen" id="screen-result">
+    <div class="topbar">
+      <div class="lang-pill" onclick="goTo('screen-home')">← <span id="t-back2">Back</span></div>
+      <div></div>
+    </div>
+    <div class="content">
+      <h2 class="screen-title" id="t-resulttitle">Scan Result</h2>
+      <div class="card" style="text-align:center;">
+        <canvas id="capturedCanvas" style="width:100%; border-radius:14px; margin-bottom:14px;"></canvas>
+        <p class="section-label" id="t-aiSuggests" style="margin-bottom:8px;">AI SUGGESTS THIS CROP — CONFIRM OR CHANGE</p>
+        <div class="chip-row" id="cropChips"></div>
+      </div>
+
+      <div class="card">
+        <div class="gauge-row">
+          <div class="gauge" id="resultGaugeRing">
+            <div class="gauge-inner"><div class="num" id="resultScoreNum">--</div><div class="lbl" id="t-score">SCORE</div></div>
+          </div>
+          <div class="gauge-desc">
+            <h3 id="resultHealthTitle">—</h3>
+            <p id="resultHealthDesc">—</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="reco" id="resultRecoBox">
+        <div class="reco-icon">💧</div>
+        <div>
+          <h4 id="resultRecoTitle">—</h4>
+          <p id="resultRecoBody">—</p>
+        </div>
+      </div>
+
+      <div class="info-toggle" onclick="toggleInfo()" id="t-howthiswords">ⓘ How does this scan work?</div>
+      <div class="info-box" id="infoBox">
+        <span id="t-infobody">This runs entirely in your browser — no server needed. Leaf greenness is measured directly from your photo using a real, simple vegetation-colour formula (Excess Green Index). Crop-type identification and the field-wide satellite map are simulated with the same rule logic described in the "single-file backend" section of this code, standing in for a trained AI model and a real satellite data feed in a full production version.</span>
+      </div>
+
+      <button class="btn btn-primary" style="margin-top:16px;" onclick="goTo('screen-home')" id="t-savebtn">✓ Save to Field Record</button>
+    </div>
+  </div>
+
+  <!-- ================= HELP / OFFLINE SCREEN ================= -->
+  <div class="screen" id="screen-help">
+    <div class="topbar">
+      <div class="lang-pill" onclick="goTo('screen-home')">← <span id="t-back3">Back</span></div>
+      <div></div>
+    </div>
+    <div class="help-hero">
+      <div class="icon">🆘</div>
+      <h2 style="margin:0 0 4px;" id="t-helptitle">Need Help Right Now?</h2>
+      <p style="margin:0; font-size:12.5px; opacity:0.85;" id="t-helpsub">Works even without internet.</p>
+    </div>
+    <div class="content">
+      <div class="card">
+        <p class="section-label" id="t-callexpert">TALK TO AN EXPERT</p>
+        <a href="tel:18001801551" class="btn btn-call" style="text-decoration:none; margin-bottom:10px;">📞 <span id="t-kisancall">Call Kisan Call Centre (1800-180-1551)</span></a>
+        <p class="small-muted" id="t-calldesc">Free helpline. Works on any phone, even without internet or a smartphone.</p>
+      </div>
+
+      <div class="card">
+        <p class="section-label" id="t-smslabel">NO INTERNET? USE SMS</p>
+        <p style="font-size:13px; line-height:1.6;" id="t-smsbody">Send an SMS with your Field ID to <b>77777-KRISHI</b> and you'll get your last irrigation recommendation back by text within a few minutes — no data connection needed.</p>
+      </div>
+
+      <div class="card">
+        <p class="section-label" id="t-cachelabel">LAST SAVED RESULT (OFFLINE COPY)</p>
+        <p style="font-size:13px; line-height:1.6;" id="cachedResultLine">Loading…</p>
+      </div>
+    </div>
+    <div class="bottomnav">
+      <div class="navitem" onclick="goTo('screen-home')"><span class="icon">🏠</span><span id="t-nav-home2">Home</span></div>
+      <div class="navitem" onclick="goTo('screen-camera'); startCamera();"><span class="icon">📷</span><span id="t-nav-scan2">Scan</span></div>
+      <div class="navitem active"><span class="icon">🆘</span><span id="t-nav-help2">Help</span></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ================================================================
+   ============  "BACKEND" — RUNS ENTIRELY IN-BROWSER  =============
+   ================================================================
+   This section is a direct JavaScript port of the Flask backend
+   (app.py) from the multi-file version of this project. There is no
+   server here — every function below runs on the user's device, so
+   the whole thing works by just opening this HTML file (no install,
+   no hosting, no network required except for loading the Google
+   Fonts at the top, which is optional).
+
+   WHAT IS REAL vs WHAT IS A PLACEHOLDER (same honesty note as before):
+   - recommendIrrigation() is a real, working rule-based recommendation
+     engine. Feed it real NDVI + growth-stage data and it gives sensible
+     priority levels.
+   - generateFieldNdviGrid() has the REAL structure you'd get from a
+     satellite provider (Sentinel Hub / Google Earth Engine / ISRO
+     Bhuvan), but the numbers are synthetic placeholders here — see the
+     comment inside the function for how to replace this with a real
+     API call.
+   - classifyCropFromPhoto() (crop-type guess) is a placeholder. Real
+     crop identification needs a trained image model — see the note in
+     the result screen's "How does this scan work?" panel.
+   - The leaf-health SCORE, however, is real: it's computed from the
+     actual pixels of the photo you capture, using the Excess Green
+     Index vegetation-colour formula.
+   ================================================================ */
+
+const CROP_WATER_PROFILE = {
+  cotton:          { criticalStages: ["flowering","boll_development"], baseIntervalDays: 10 },
+  soybean:         { criticalStages: ["flowering","pod_filling"],      baseIntervalDays: 8  },
+  sugarcane:       { criticalStages: ["tillering","grand_growth"],     baseIntervalDays: 7  },
+  tur_pigeon_pea:  { criticalStages: ["flowering","pod_filling"],      baseIntervalDays: 12 },
+  onion:           { criticalStages: ["bulb_development"],             baseIntervalDays: 6  },
+  wheat:           { criticalStages: ["crown_root","flowering"],       baseIntervalDays: 12 },
+  rice:            { criticalStages: ["tillering","flowering"],        baseIntervalDays: 4  },
+  jowar:           { criticalStages: ["flowering"],                    baseIntervalDays: 10 },
+  groundnut:       { criticalStages: ["pegging","pod_development"],    baseIntervalDays: 9  },
+};
+
+const CROP_KEYS = Object.keys(CROP_WATER_PROFILE);
+
+/* ---- 1. Satellite NDVI / moisture-stress grid (SYNTHETIC — see note) ---- */
+function generateFieldNdviGrid(rows = 6, cols = 6){
+  // In production, replace this random generation with a real call to
+  // Sentinel Hub / Google Earth Engine / ISRO Bhuvan for the field's
+  // actual NDVI values (Normalized Difference Vegetation Index, from
+  // Sentinel-2 red + near-infrared bands). See the write-up at the
+  // bottom of this script for exact API code samples.
+  const cells = [];
+  for(let r=0; r<rows; r++){
+    for(let c=0; c<cols; c++){
+      const ndvi = +(0.35 + Math.random()*0.5).toFixed(2);
+      let status = ndvi >= 0.6 ? "healthy" : ndvi >= 0.45 ? "mild_stress" : "high_stress";
+      cells.push({ row:r, col:c, ndvi, status });
+    }
+  }
+  const avgNdvi = +(cells.reduce((s,c)=>s+c.ndvi,0)/cells.length).toFixed(3);
+  const stressedPct = +(100 * cells.filter(c=>c.status!=="healthy").length / cells.length).toFixed(1);
+  return { rows, cols, cells, avgNdvi, stressedPct, generatedAt: new Date().toISOString() };
+}
+
+/* ---- 2. Irrigation recommendation engine (REAL rule-based logic) ---- */
+function recommendIrrigation({ cropType, ndviAvg, stressedAreaPct, daysSinceLastIrrigation = null, growthStage = null, recentRainMm = 0 }){
+  const profile = CROP_WATER_PROFILE[cropType] || { criticalStages: [], baseIntervalDays: 9 };
+
+  if(recentRainMm >= 15){
+    return { priority: "low", action: "no_irrigation_needed",
+      reasonKey: "rain", reasonValue: recentRainMm };
+  }
+
+  let stressScore = 0;
+  if(ndviAvg < 0.45) stressScore += 2;
+  else if(ndviAvg < 0.6) stressScore += 1;
+
+  if(stressedAreaPct >= 30) stressScore += 2;
+  else if(stressedAreaPct >= 10) stressScore += 1;
+
+  if(growthStage && profile.criticalStages.includes(growthStage)) stressScore += 1;
+  if(daysSinceLastIrrigation !== null && daysSinceLastIrrigation >= profile.baseIntervalDays) stressScore += 1;
+
+  let priority, action;
+  if(stressScore >= 4){ priority="high"; action="irrigate_within_1_2_days"; }
+  else if(stressScore >= 2){ priority="medium"; action="irrigate_within_3_4_days"; }
+  else { priority="low"; action="no_irrigation_needed"; }
+
+  return { priority, action, ndviAvg, stressedAreaPct };
+}
+
+/* ---- 3. Crop classification (PLACEHOLDER — needs a trained model in production) ---- */
+function classifyCropFromPhoto(){
+  const guess = CROP_KEYS[Math.floor(Math.random()*CROP_KEYS.length)];
+  const confidence = +(0.55 + Math.random()*0.38).toFixed(2);
+  return { cropType: guess, confidence };
+}
+
+/* ---- 4. "Offline last-known result" store (localStorage stands in for a server DB) ---- */
+const STORAGE_KEY = "krishiDrishtiLastResult";
+function saveLastResult(obj){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(obj)); }catch(e){}
+}
+function loadLastResult(){
+  try{ return JSON.parse(localStorage.getItem(STORAGE_KEY) || "null"); }catch(e){ return null; }
+}
+
+/* ================================================================
+   REAL SATELLITE / TRAINED-MODEL UPGRADE PATH (for when you deploy
+   this for real, not just as a browser demo):
+
+   - Sentinel Hub (fastest to start, free tier):
+       fetch NDVI from Sentinel-2 bands B04/B08 for the field's
+       coordinates via their REST API, replacing generateFieldNdviGrid().
+   - ISRO Bhuvan (best long-term fit for Indian farmland):
+       apply for NRSC/ISRO API access for India-specific agri layers.
+   - Crop classifier: collect a labelled photo dataset per crop and
+       train a MobileNetV2 transfer-learning model (see the
+       train_crop_classifier.py blueprint from the multi-file version
+       of this project), then either run it server-side or convert it
+       to TensorFlow.js to run right here in the browser.
+   ================================================================ */
+
+
+/* ================================================================
+   ========================  FRONTEND  ============================
+   ================================================================ */
+
+const I18N = {
+  en: {brand:"Krishi Drishti", brandsub:"FIELD INTELLIGENCE", langpill:"English",
+    offlinemsg:"No internet — showing last saved data from your device.",
+    fieldname:"Field No. 1 — Home Plot", cropbadge:"Cotton",
+    gridlabel:"SATELLITE FIELD MAP — MOISTURE STRESS",
+    "leg-healthy":"Healthy", "leg-mild":"Mild stress", "leg-high":"High stress",
+    refreshbtn:"Recalculate Recommendation",
+    scanbtn:"Scan a Crop", "nav-home":"Home", "nav-scan":"Scan", "nav-help":"Help",
+    back:"Back", camtitle:"Scan Crop", camhint:"Point camera at crop leaves, fill the frame, then tap capture.",
+    analyzing:"Analyzing your photo…", "analyzing-sub":"Checking leaf colour, greenness and possible stress signs.",
+    resulttitle:"Scan Result", aiSuggests:"AI SUGGESTS THIS CROP — CONFIRM OR CHANGE", score:"SCORE",
+    back2:"Back", howthiswords:"ⓘ How does this scan work?",
+    infobody:"This runs entirely in your browser — no server needed. Leaf greenness is measured directly from your photo using a real, simple vegetation-colour formula (Excess Green Index). Crop-type identification and the field-wide satellite map are simulated placeholders, standing in for a trained AI model and a real satellite data feed in a full production version.",
+    savebtn:"✓ Save to Field Record",
+    back3:"Back", helptitle:"Need Help Right Now?", helpsub:"Works even without internet.",
+    callexpert:"TALK TO AN EXPERT", kisancall:"Call Kisan Call Centre (1800-180-1551)",
+    calldesc:"Free helpline. Works on any phone, even without internet or a smartphone.",
+    smslabel:"NO INTERNET? USE SMS",
+    smsbody:"Send an SMS with your Field ID to <b>77777-KRISHI</b> and you'll get your last irrigation recommendation back by text within a few minutes — no data connection needed.",
+    cachelabel:"LAST SAVED RESULT (OFFLINE COPY)",
+    "nav-home2":"Home", "nav-scan2":"Scan", "nav-help2":"Help",
+    crops:{cotton:"Cotton",soybean:"Soybean",sugarcane:"Sugarcane",tur_pigeon_pea:"Tur (Pigeon Pea)",onion:"Onion",wheat:"Wheat",rice:"Rice",jowar:"Jowar",groundnut:"Groundnut"},
+    healthLabels:{good:"Healthy",mid:"Mild Stress",low:"High Stress"},
+    healthDescGood:"Leaf colour looks strong and green. No urgent action needed.",
+    healthDescMid:"Some yellowing detected. Keep an eye on soil moisture over the next 2–3 days.",
+    healthDescLow:"Signs of moisture stress detected. Irrigation is recommended soon.",
+    recoTitle:{high:"Irrigation Recommended Soon", medium:"Monitor This Crop", low:"No Irrigation Needed Right Now"},
+    recoBody:{high:"Moisture stress detected. Irrigate within 1–2 days to protect yield.",
+              medium:"Mild stress detected. Irrigate within 3–4 days if no rain is expected.",
+              low:"This field looks healthy. Recheck in 3–4 days."},
+    homeMeta: (acres,hrs)=>`${acres} acres · Last updated ${hrs} hrs ago`,
+    ndviLine: (avg,pct)=>`Avg NDVI ${avg} · Stressed area ${pct}%`,
+    cachedLine: (status,crop,ndvi,date)=>`Field No. 1: ${status} moisture stress. Crop: ${crop}. NDVI: ${ndvi}. Saved ${date}.`,
+    noCached:"No saved scan yet — scan a crop first, or recalculate the recommendation once online."
+  },
+  hi: {brand:"कृषि दृष्टि", brandsub:"खेत की जानकारी", langpill:"हिंदी",
+    offlinemsg:"इंटरनेट नहीं है — आपके डिवाइस पर सहेजा गया डेटा दिखाया जा रहा है।",
+    fieldname:"खेत नंबर 1 — घर का प्लॉट", cropbadge:"कपास",
+    gridlabel:"सैटेलाइट खेत नक्शा — नमी तनाव",
+    "leg-healthy":"स्वस्थ", "leg-mild":"हल्का तनाव", "leg-high":"अधिक तनाव",
+    refreshbtn:"सलाह फिर से जांचें",
+    scanbtn:"फसल स्कैन करें", "nav-home":"होम", "nav-scan":"स्कैन", "nav-help":"मदद",
+    back:"वापस", camtitle:"फसल स्कैन करें", camhint:"कैमरे को फसल की पत्तियों की ओर करें, फ्रेम भरें, फिर कैप्चर दबाएं।",
+    analyzing:"आपकी फोटो का विश्लेषण हो रहा है…", "analyzing-sub":"पत्ती का रंग, हरियाली और तनाव के संकेत जांचे जा रहे हैं।",
+    resulttitle:"स्कैन परिणाम", aiSuggests:"एआई का सुझाव — पुष्टि करें या बदलें", score:"स्कोर",
+    back2:"वापस", howthiswords:"ⓘ यह स्कैन कैसे काम करता है?",
+    infobody:"यह पूरी तरह आपके ब्राउज़र में चलता है — किसी सर्वर की जरूरत नहीं। पत्तियों की हरियाली आपकी फोटो से एक वास्तविक, सरल वनस्पति-रंग सूत्र (एक्सेस ग्रीन इंडेक्स) से मापी जाती है। फसल की पहचान और सैटेलाइट नक्शा डेमो के लिए सिम्युलेट किए गए हैं, जो पूर्ण उत्पादन संस्करण में एक प्रशिक्षित एआई मॉडल और वास्तविक सैटेलाइट डेटा की जगह लेंगे।",
+    savebtn:"✓ खेत रिकॉर्ड में सहेजें",
+    back3:"वापस", helptitle:"अभी मदद चाहिए?", helpsub:"इंटरनेट के बिना भी काम करता है।",
+    callexpert:"विशेषज्ञ से बात करें", kisancall:"किसान कॉल सेंटर पर कॉल करें (1800-180-1551)",
+    calldesc:"मुफ्त हेल्पलाइन। इंटरनेट या स्मार्टफोन के बिना भी किसी भी फोन पर काम करती है।",
+    smslabel:"इंटरनेट नहीं है? एसएमएस भेजें",
+    smsbody:"अपना खेत आईडी लिखकर <b>77777-KRISHI</b> पर एसएमएस भेजें और कुछ ही मिनटों में आपको सिंचाई की सलाह वापस मिलेगी — डेटा कनेक्शन की जरूरत नहीं।",
+    cachelabel:"आखिरी सहेजा गया परिणाम (ऑफलाइन कॉपी)",
+    "nav-home2":"होम", "nav-scan2":"स्कैन", "nav-help2":"मदद",
+    crops:{cotton:"कपास",soybean:"सोयाबीन",sugarcane:"गन्ना",tur_pigeon_pea:"तुअर (अरहर)",onion:"प्याज",wheat:"गेहूं",rice:"चावल",jowar:"ज्वार",groundnut:"मूंगफली"},
+    healthLabels:{good:"स्वस्थ",mid:"हल्का तनाव",low:"अधिक तनाव"},
+    healthDescGood:"पत्ती का रंग गहरा हरा और मजबूत दिख रहा है। तुरंत कार्रवाई की जरूरत नहीं।",
+    healthDescMid:"कुछ पीलापन पाया गया। अगले 2–3 दिनों में मिट्टी की नमी पर नजर रखें।",
+    healthDescLow:"नमी तनाव के संकेत मिले हैं। जल्द सिंचाई की सलाह दी जाती है।",
+    recoTitle:{high:"जल्द सिंचाई की सलाह", medium:"इस फसल पर नजर रखें", low:"अभी सिंचाई की जरूरत नहीं"},
+    recoBody:{high:"नमी तनाव पाया गया। उपज बचाने के लिए 1–2 दिन में सिंचाई करें।",
+              medium:"हल्का तनाव मिला है। यदि बारिश की उम्मीद नहीं है तो 3–4 दिन में सिंचाई करें।",
+              low:"यह खेत स्वस्थ दिख रहा है। 3–4 दिन में फिर से जांचें।"},
+    homeMeta: (acres,hrs)=>`${acres} एकड़ · ${hrs} घंटे पहले अपडेट हुआ`,
+    ndviLine: (avg,pct)=>`औसत NDVI ${avg} · तनावग्रस्त क्षेत्र ${pct}%`,
+    cachedLine: (status,crop,ndvi,date)=>`खेत नंबर 1: ${status} नमी तनाव। फसल: ${crop}। NDVI: ${ndvi}। सहेजा गया ${date}।`,
+    noCached:"अभी तक कोई सहेजा गया स्कैन नहीं है — पहले फसल स्कैन करें, या ऑनलाइन होने पर सलाह फिर से जांचें।"
+  },
+  mr: {brand:"कृषी दृष्टी", brandsub:"शेत माहिती प्रणाली", langpill:"मराठी",
+    offlinemsg:"इंटरनेट नाही — तुमच्या डिव्हाइसवर जतन केलेला डेटा दाखवत आहे.",
+    fieldname:"शेत क्र. 1 — घराजवळचा प्लॉट", cropbadge:"कापूस",
+    gridlabel:"उपग्रह शेत नकाशा — ओलावा ताण",
+    "leg-healthy":"निरोगी", "leg-mild":"सौम्य ताण", "leg-high":"जास्त ताण",
+    refreshbtn:"सल्ला पुन्हा तपासा",
+    scanbtn:"पीक स्कॅन करा", "nav-home":"मुख्यपृष्ठ", "nav-scan":"स्कॅन", "nav-help":"मदत",
+    back:"मागे", camtitle:"पीक स्कॅन करा", camhint:"कॅमेरा पिकाच्या पानांकडे धरा, चौकट भरा, नंतर कॅप्चर दाबा.",
+    analyzing:"तुमच्या फोटोचे विश्लेषण सुरू आहे…", "analyzing-sub":"पानांचा रंग, हिरवेपणा आणि ताणाची चिन्हे तपासली जात आहेत.",
+    resulttitle:"स्कॅन निकाल", aiSuggests:"एआयचा अंदाज — पुष्टी करा किंवा बदला", score:"गुण",
+    back2:"मागे", howthiswords:"ⓘ हे स्कॅन कसे काम करते?",
+    infobody:"हे पूर्णपणे तुमच्या ब्राउझरमध्ये चालते — कोणत्याही सर्व्हरची गरज नाही. पानांचा हिरवेपणा तुमच्या फोटोवरून एका खऱ्या, साध्या वनस्पती-रंग सूत्राने (एक्सेस ग्रीन इंडेक्स) मोजला जातो. पिकाची ओळख आणि उपग्रह नकाशा डेमोसाठी सिम्युलेट केलेले आहेत, जे पूर्ण उत्पादन आवृत्तीत प्रशिक्षित एआय मॉडेल आणि खऱ्या उपग्रह डेटाची जागा घेतील.",
+    savebtn:"✓ शेत नोंदीत जतन करा",
+    back3:"मागे", helptitle:"आत्ता मदत हवी आहे?", helpsub:"इंटरनेटशिवायही काम करते.",
+    callexpert:"तज्ञांशी बोला", kisancall:"किसान कॉल सेंटरला कॉल करा (1800-180-1551)",
+    calldesc:"मोफत हेल्पलाइन. इंटरनेट किंवा स्मार्टफोनशिवायही कोणत्याही फोनवर काम करते.",
+    smslabel:"इंटरनेट नाही? एसएमएस वापरा",
+    smsbody:"तुमचा शेत आयडी लिहून <b>77777-KRISHI</b> वर एसएमएस पाठवा आणि काही मिनिटांत तुम्हाला सिंचन सल्ला परत मिळेल — डेटा कनेक्शनची गरज नाही.",
+    cachelabel:"शेवटचा जतन केलेला निकाल (ऑफलाइन प्रत)",
+    "nav-home2":"मुख्यपृष्ठ", "nav-scan2":"स्कॅन", "nav-help2":"मदत",
+    crops:{cotton:"कापूस",soybean:"सोयाबीन",sugarcane:"ऊस",tur_pigeon_pea:"तूर",onion:"कांदा",wheat:"गहू",rice:"भात",jowar:"ज्वारी",groundnut:"भुईमूग"},
+    healthLabels:{good:"निरोगी",mid:"सौम्य ताण",low:"जास्त ताण"},
+    healthDescGood:"पानांचा रंग गडद हिरवा आणि मजबूत दिसत आहे. तातडीने काही करण्याची गरज नाही.",
+    healthDescMid:"थोडा पिवळेपणा आढळला. पुढील 2–3 दिवस जमिनीतील ओलाव्यावर लक्ष ठेवा.",
+    healthDescLow:"ओलावा ताणाची चिन्हे आढळली. लवकरच सिंचनाचा सल्ला दिला जातो.",
+    recoTitle:{high:"लवकरच सिंचन सल्ला", medium:"या पिकावर लक्ष ठेवा", low:"आत्ता सिंचनाची गरज नाही"},
+    recoBody:{high:"ओलावा ताण आढळला. उत्पादन वाचवण्यासाठी 1–2 दिवसांत पाणी द्या.",
+              medium:"सौम्य ताण आढळला. पाऊस अपेक्षित नसल्यास 3–4 दिवसांत पाणी द्या.",
+              low:"हे शेत निरोगी दिसत आहे. 3–4 दिवसांनी पुन्हा तपासा."},
+    homeMeta: (acres,hrs)=>`${acres} एकर · ${hrs} तासांपूर्वी अद्ययावत`,
+    ndviLine: (avg,pct)=>`सरासरी NDVI ${avg} · ताणग्रस्त क्षेत्र ${pct}%`,
+    cachedLine: (status,crop,ndvi,date)=>`शेत क्र. 1: ${status} ओलावा ताण. पीक: ${crop}. NDVI: ${ndvi}. जतन केले ${date}.`,
+    noCached:"अजून कोणतेही जतन केलेले स्कॅन नाही — आधी पीक स्कॅन करा, किंवा ऑनलाइन असताना सल्ला पुन्हा तपासा."
+  }
+};
+
+let currentLang = 'en';
+let currentFieldState = null; // holds the latest computed NDVI + recommendation
+
+function applyTranslations(){
+  const dict = I18N[currentLang];
+  document.querySelectorAll('[id^="t-"]').forEach(el=>{
+    const key = el.id.slice(2);
+    if(dict[key] !== undefined) el.innerHTML = dict[key];
+  });
+}
+
+function setLanguage(lang){
+  currentLang = lang;
+  applyTranslations();
+  refreshFieldData();
+  renderCachedResult();
+  goTo('screen-home');
+}
+
+/* ---------------- NAVIGATION ---------------- */
+function goTo(screenId){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(screenId).classList.add('active');
+}
+
+/* ---------------- OFFLINE DETECTION ---------------- */
+function updateOnlineStatus(){
+  document.getElementById('offlineBanner').style.display = navigator.onLine ? 'none' : 'flex';
+}
+window.addEventListener('online', updateOnlineStatus);
+window.addEventListener('offline', updateOnlineStatus);
+
+/* ---------------- HOME DASHBOARD: pulls from the in-browser "backend" ---------------- */
+function refreshFieldData(){
+  const dict = I18N[currentLang];
+  const cropType = 'cotton';
+  const ndvi = generateFieldNdviGrid(6,6);
+  const reco = recommendIrrigation({
+    cropType, ndviAvg: ndvi.avgNdvi, stressedAreaPct: ndvi.stressedPct,
+    daysSinceLastIrrigation: 9, growthStage: 'flowering', recentRainMm: 0
+  });
+
+  currentFieldState = { cropType, ndvi, reco, updatedAt: new Date().toISOString() };
+  saveLastResult(currentFieldState);
+
+  renderFieldGrid(ndvi.cells);
+  document.getElementById('ndviLine').textContent = dict.ndviLine(ndvi.avgNdvi, ndvi.stressedPct);
+  document.getElementById('fieldMetaLine').textContent = dict.homeMeta(2.4, 4);
+  document.getElementById('cropBadgeText').textContent = dict.crops[cropType];
+
+  // health gauge derived from NDVI (0-1 -> 0-100)
+  const healthPct = Math.round(ndvi.avgNdvi * 100);
+  const deg = Math.round((healthPct/100)*360);
+  const tier = healthPct >= 65 ? 'good' : healthPct >= 45 ? 'mid' : 'low';
+  const ringColor = tier==='good' ? 'var(--leaf)' : tier==='mid' ? 'var(--gold)' : 'var(--alert)';
+  document.getElementById('homeGaugeRing').style.background = `conic-gradient(${ringColor} 0deg ${deg}deg, var(--paper-2) ${deg}deg 360deg)`;
+  document.getElementById('homeHealthNum').textContent = healthPct + '%';
+  document.getElementById('homeHealthLbl').textContent = dict.healthLabels[tier].toUpperCase();
+  document.getElementById('homeHealthTitle').textContent = 'Field Health: ' + dict.healthLabels[tier];
+  document.getElementById('homeHealthDesc').textContent =
+    tier==='good' ? dict.healthDescGood : tier==='mid' ? dict.healthDescMid : dict.healthDescLow;
+
+  const recoBox = document.getElementById('homeRecoBox');
+  recoBox.className = 'reco priority-' + reco.priority;
+  document.getElementById('homeRecoTitle').textContent = dict.recoTitle[reco.priority];
+  document.getElementById('homeRecoBody').textContent = dict.recoBody[reco.priority];
+}
+
+function renderFieldGrid(cells){
+  const grid = document.getElementById('fieldGrid');
+  grid.innerHTML = '';
+  cells.forEach(cell=>{
+    const tile = document.createElement('div');
+    tile.className = 'tile ' + cell.status;
+    tile.title = `Row ${cell.row+1}, Col ${cell.col+1}: NDVI ${cell.ndvi} (${cell.status})`;
+    grid.appendChild(tile);
+  });
+}
+
+function renderCachedResult(){
+  const dict = I18N[currentLang];
+  const cached = loadLastResult();
+  const el = document.getElementById('cachedResultLine');
+  if(!cached){ el.textContent = dict.noCached; return; }
+  const statusLabel = dict.healthLabels[cached.reco.priority === 'high' ? 'low' : cached.reco.priority === 'medium' ? 'mid' : 'good'];
+  const dateStr = new Date(cached.updatedAt).toLocaleString();
+  el.textContent = dict.cachedLine(statusLabel, dict.crops[cached.cropType], cached.ndvi.avgNdvi, dateStr);
+}
+
+/* ---------------- CAMERA CAPTURE + ON-DEVICE ANALYSIS ---------------- */
+let mediaStream = null;
+
+async function startCamera(){
+  const video = document.getElementById('video');
+  try{
+    mediaStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: 'environment' } }, audio: false
+    });
+    video.srcObject = mediaStream;
+  }catch(err){
+    document.getElementById('cameraView').innerHTML =
+      '<div style="padding:30px; text-align:center; font-size:13px; line-height:1.6;">📷 Camera permission was not granted, or no camera is available on this device/browser.<br><br>Please allow camera access in your browser settings, then tap ↻ to retry.</div>';
+  }
+}
+
+function stopCameraAndGo(screenId){
+  if(mediaStream){ mediaStream.getTracks().forEach(t=>t.stop()); mediaStream=null; }
+  goTo(screenId);
+}
+
+function capturePhoto(){
+  const video = document.getElementById('video');
+  if(!video.videoWidth) return;
+  const canvas = document.createElement('canvas');
+  canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+  canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+
+  if(mediaStream){ mediaStream.getTracks().forEach(t=>t.stop()); mediaStream=null; }
+  goTo('screen-analyzing');
+  setTimeout(()=>{ analyzeImage(canvas); }, 1400);
+}
+
+/* Real vegetation-colour analysis: Excess Green Index = 2G - R - B,
+   averaged across sampled pixels. A genuine, lightweight proxy for
+   leaf greenness/health — not a substitute for a trained CNN. */
+function analyzeImage(canvas){
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width, h = canvas.height;
+  const step = Math.max(1, Math.floor(Math.min(w,h) / 200));
+  const data = ctx.getImageData(0,0,w,h).data;
+
+  let total = 0, count = 0;
+  for(let y=0; y<h; y+=step){
+    for(let x=0; x<w; x+=step){
+      const idx = (y*w + x) * 4;
+      total += (2*data[idx+1] - data[idx] - data[idx+2]);
+      count++;
+    }
+  }
+  const avgExg = total / count;
+  let score = Math.round(((avgExg + 100) / 300) * 100);
+  score = Math.max(8, Math.min(96, score));
+
+  const resultCanvas = document.getElementById('capturedCanvas');
+  resultCanvas.width = w; resultCanvas.height = h;
+  resultCanvas.getContext('2d').drawImage(canvas, 0, 0);
+
+  showResult(score);
+}
+
+function showResult(score){
+  const dict = I18N[currentLang];
+  goTo('screen-result');
+
+  const guess = classifyCropFromPhoto();
+  const chipRow = document.getElementById('cropChips');
+  chipRow.innerHTML = '';
+  CROP_KEYS.forEach(key=>{
+    const chip = document.createElement('div');
+    chip.className = 'chip' + (key===guess.cropType ? ' selected' : '');
+    chip.textContent = dict.crops[key];
+    chip.onclick = ()=>{
+      document.querySelectorAll('.chip').forEach(c=>c.classList.remove('selected'));
+      chip.classList.add('selected');
+    };
+    chipRow.appendChild(chip);
+  });
+
+  let tier, ringColor, priority;
+  if(score >= 65){ tier='good'; ringColor='var(--leaf)'; priority='low'; }
+  else if(score >= 40){ tier='mid'; ringColor='var(--gold)'; priority='medium'; }
+  else { tier='low'; ringColor='var(--alert)'; priority='high'; }
+
+  const deg = Math.round((score/100) * 360);
+  document.getElementById('resultGaugeRing').style.background =
+    `conic-gradient(${ringColor} 0deg ${deg}deg, var(--paper-2) ${deg}deg 360deg)`;
+  document.getElementById('resultScoreNum').textContent = score;
+  document.getElementById('resultHealthTitle').textContent = dict.healthLabels[tier];
+  document.getElementById('resultHealthDesc').textContent =
+    tier==='good' ? dict.healthDescGood : tier==='mid' ? dict.healthDescMid : dict.healthDescLow;
+
+  const recoBox = document.getElementById('resultRecoBox');
+  recoBox.className = 'reco priority-' + priority;
+  document.getElementById('resultRecoTitle').textContent = dict.recoTitle[priority];
+  document.getElementById('resultRecoBody').textContent = dict.recoBody[priority];
+
+  // save this scan as the new "last known result" for offline/help screen
+  saveLastResult({
+    cropType: guess.cropType,
+    ndvi: { avgNdvi: +(score/100).toFixed(2), stressedPct: 100-score },
+    reco: { priority },
+    updatedAt: new Date().toISOString()
+  });
+}
+
+function toggleInfo(){
+  document.getElementById('infoBox').classList.toggle('show');
+}
+
+/* ---------------- INIT ---------------- */
+updateOnlineStatus();
+applyTranslations();
+refreshFieldData();
+renderCachedResult();
+</script>
+</body>
+</html>
